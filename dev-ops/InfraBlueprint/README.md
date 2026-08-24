@@ -1,13 +1,13 @@
 # InfraBlueprint
 
-This challenge is designed to test your ability to define, provision, and manage cloud infrastructure as code — a foundational DevOps skill.
+This challenge is designed to test your ability to define, provision, and manage cloud infrastructure as code, which is a foundational DevOps skill.
 
 ---
 
 ## 1. Business Context
 
 **Client:** Vela Payments
-**Industry:** Fintech — Payment processing for small businesses
+**Industry:** Fintech - Payment processing for small businesses
 
 ### The Problem
 
@@ -17,7 +17,7 @@ The CTO has one goal: **if the entire AWS account was deleted tomorrow, a new en
 
 ### Your Role
 
-You are joining as their infrastructure engineer. You will not be running application code. Your job is to write **Terraform configuration** that provisions Vela's infrastructure from scratch — reproducibly, securely, and cleanly.
+You are joining as their infrastructure engineer. You will not be running application code. Your job is to write **Terraform configuration** that provisions Vela's infrastructure from scratch, reproducibly, securely, and cleanly.
 
 ---
 
@@ -34,16 +34,16 @@ Internet
 [Security Group: web]
     │
     ▼
-[EC2 Instance — t2.micro]  ──────►  [Security Group: db]
+[EC2 Instance - t2.micro]  ──────►  [Security Group: db]
     │                                       │
     │                                       ▼
-    │                               [RDS — db.t3.micro]
+    │                               [RDS - db.t3.micro]
     │
     ▼
-[S3 Bucket — static assets]
+[S3 Bucket - static assets]
 ```
 
-All resources must live inside a **custom VPC** — not the default AWS VPC.
+All resources must live inside a **custom VPC**, not the default AWS VPC.
 
 ---
 
@@ -58,7 +58,7 @@ All resources must live inside a **custom VPC** — not the default AWS VPC.
 
 ## 4. The Assignment
 
-### Part 1 — Networking
+### Part 1 - Networking
 
 **Deliverable:** Terraform resources for the VPC and subnets.
 
@@ -73,7 +73,7 @@ Requirements:
 
 ---
 
-### Part 2 — Compute
+### Part 2 - Compute
 
 **Deliverable:** Terraform resources for the EC2 instance and its security group.
 
@@ -85,17 +85,17 @@ Requirements:
   - Inbound SSH on port 22 from **your IP only** (use a variable, not a hardcoded IP)
   - All outbound traffic
 - [ ] An **EC2 instance** (`t2.micro`, Amazon Linux 2023) in one of the public subnets, attached to `web-sg`.
-- [ ] An **IAM Instance Profile** attached to the EC2 instance. The role must only allow `s3:GetObject` and `s3:PutObject` on the S3 bucket you create in Part 4 — nothing else.
+- [ ] An **IAM Instance Profile** attached to the EC2 instance. The role must only allow `s3:GetObject` and `s3:PutObject` on the S3 bucket you create in Part 4, nothing else.
 
 ---
 
-### Part 3 — Database
+### Part 3 - Database
 
 **Deliverable:** Terraform resources for an RDS instance and its security group.
 
 Requirements:
 
-- [ ] A **Security Group** (`db-sg`) that allows inbound traffic on port 5432 (PostgreSQL) **only from `web-sg`** — not from the internet.
+- [ ] A **Security Group** (`db-sg`) that allows inbound traffic on port 5432 (PostgreSQL) **only from `web-sg`**, not from the internet.
 - [ ] An **RDS instance** (`db.t3.micro`, PostgreSQL 15) in the private subnets.
 - [ ] The database username and password must be passed in as **Terraform variables**. They must never appear as default values in the code.
 - [ ] The RDS instance must **not** be publicly accessible.
@@ -104,20 +104,20 @@ Requirements:
 
 ---
 
-### Part 4 — Storage
+### Part 4 - Storage
 
 **Deliverable:** Terraform resources for an S3 bucket.
 
 Requirements:
 
 - [ ] An **S3 bucket** for static assets.
-- [ ] **Block all public access** on the bucket — it should only be reachable from the EC2 instance's IAM role.
+- [ ] **Block all public access** on the bucket, it should only be reachable from the EC2 instance's IAM role.
 - [ ] **Versioning** enabled on the bucket.
-- [ ] The bucket name must come from a Terraform variable (bucket names are globally unique — hardcoding one will cause apply failures for other reviewers).
+- [ ] The bucket name must come from a Terraform variable (bucket names are globally unique, so hardcoding one will cause apply failures for other reviewers).
 
 ---
 
-### Part 5 — Variables, Outputs & State
+### Part 5 - Variables, Outputs & State
 
 **Deliverable:** `variables.tf`, `outputs.tf`, and a `backend` configuration.
 
@@ -141,7 +141,7 @@ terraform init
 terraform plan -var-file="example.tfvars"
 ```
 
-`terraform plan` must complete with no errors. They will not run `terraform apply`, so you do not need a live environment at submission time — but your code must be correct enough to plan cleanly.
+`terraform plan` must complete with no errors. They will not run `terraform apply`, so you do not need a live environment at submission time, but your code must be correct enough to plan cleanly.
 
 ---
 
@@ -161,10 +161,10 @@ Describe what you added and why in your README.
 
 Your final `README.md` must replace these instructions and cover:
 
-1. **Architecture diagram** — a visual showing the VPC, subnets, EC2, RDS, and S3 with their security relationships.
-2. **Setup instructions** — how to configure credentials, create the backend bucket, and run `terraform init && terraform plan`.
-3. **Variable reference** — a table listing every variable, its type, and what it controls.
-4. **Design decisions** — at least two choices you made and why (e.g., why private subnets for RDS, why IAM instead of access keys).
+1. **Architecture diagram** - a visual showing the VPC, subnets, EC2, RDS, and S3 with their security relationships.
+2. **Setup instructions** - how to configure credentials, create the backend bucket, and run `terraform init && terraform plan`.
+3. **Variable reference** - a table listing every variable, its type, and what it controls.
+4. **Design decisions** - at least two choices you made and why (e.g., why private subnets for RDS, why IAM instead of access keys).
 
 ---
 

@@ -11,7 +11,7 @@
 
 They have hired us to answer one question: **"Where is the 'Blue Ocean' in the snack aisle?"**
 
-Specifically, they are looking for product categories that are currently under-served—areas where consumer demand for health (e.g., High Protein, High Fiber) is not being met by current product offerings (which are mostly High Sugar, High Fat).
+Specifically, they are looking for product categories that are currently under-served, areas where consumer demand for health (e.g., High Protein, High Fiber) is not being met by current product offerings (which are mostly High Sugar, High Fat).
 
 ## 2. The Data
 

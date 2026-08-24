@@ -1,13 +1,13 @@
 # DeployReady
 
-This challenge is designed to test your understanding of core DevOps practices: containerisation, automated pipelines, and cloud deployment.
+This challenge is designed for associate-level DevOps candidates. It is intentionally harder than an entry-level deployment exercise and tests your ability to handle containerisation, automated pipelines, cloud deployment, and safe release practices end to end.
 
 ---
 
 ## 1. Business Context
 
 **Client:** Kora Analytics
-**Industry:** SaaS — Data dashboards for logistics companies
+**Industry:** SaaS - Data dashboards for logistics companies
 
 ### The Problem
 
@@ -15,7 +15,7 @@ Every time the Kora team wants to deploy a new version of their app, a developer
 
 ### Your Role
 
-You are joining as their first DevOps engineer. The application code already works — your job is to **containerise it, automate the delivery pipeline, and get it running on a cloud platform** (AWS, GCP, Azure, or any other cloud provider you are familiar with).
+You are joining as their first DevOps engineer. The application code already works, and your job is to **containerise it, automate the delivery pipeline, and get it running on a cloud platform** (AWS, GCP, Azure, or any other cloud provider you are familiar with).
 
 ---
 
@@ -43,7 +43,7 @@ Do not change the application logic. Your work is everything around it.
 
 ## 3. The Assignment
 
-### Part 1 — Containerise the App
+### Part 1 - Containerise the App
 
 **Deliverables:** A `Dockerfile` and a `docker-compose.yml` in the root of your repository.
 
@@ -65,25 +65,34 @@ Do not change the application logic. Your work is everything around it.
 
 ---
 
-### Part 2 — Automate the Pipeline
+### Part 2 - Automate the Pipeline
 
 **Deliverable:** A `.github/workflows/deploy.yml` GitHub Actions workflow.
 
-The pipeline must run these steps **in order** on every push to `main`:
-
-1. **Test** — Run `npm test`. If tests fail, the pipeline stops. Nothing gets deployed.
-2. **Build** — Build the Docker image and tag it with the Git commit SHA.
-3. **Push** — Push the image to a container registry (GitHub Container Registry, AWS ECR, GCR, ACR, or equivalent).
-4. **Deploy** — Pull the new image on your cloud server and restart the container.
+The pipeline should test, build, push, deploy, and then verify the release with a health check on every push to `main`. If the health check fails, roll back to the previous image and fail the workflow.
 
 Additional requirements:
 
-- Secrets (SSH key, registry token) must be stored as **GitHub repository secrets** — never in the code.
+- Secrets (SSH key, registry token) must be stored as **GitHub repository secrets**, never in the code.
 - Add a short comment above each step in the YAML explaining what it does.
 
 ---
 
-### Part 3 — Deploy to the Cloud
+## 4. Monitoring and Observability
+
+**Deliverable:** A short `OBSERVABILITY.md` or a clearly documented section in `DEPLOYMENT.md`.
+
+Add a simple monitoring and observability setup for the deployed app so it is easy to tell when the service is unhealthy or behaving badly.
+
+Requirements:
+
+- Capture application logs in a way that makes them easy to review later.
+- Add at least one health check, alert, or monitoring signal for the deployed service.
+- Document how you would spot a failed deployment, a crash, or rising error rates.
+
+---
+
+### Part 3 - Deploy to the Cloud
 
 **Deliverable:** A running service on a cloud platform and a short `DEPLOYMENT.md` explaining your setup.
 
@@ -92,7 +101,7 @@ Use **AWS, GCP, Azure, or any other cloud provider you are familiar with**. Prov
 - A **virtual machine** (e.g. AWS EC2 `t2.micro`, GCP `e2-micro`, Azure B1s) with Docker installed.
 - A **firewall / security group** that allows:
   - HTTP on port 80 from anywhere
-  - SSH on port 22 **from your IP only** — not open to the world
+  - SSH on port 22 **from your IP only**, not open to the world
 - A **service account / IAM user or role** for the pipeline with only the permissions it needs.
 
 At submission time, `GET http://<your-server-ip>/health` must return `{ "status": "ok" }`.
@@ -107,7 +116,7 @@ Document in `DEPLOYMENT.md`:
 
 ---
 
-## 4. Bonus (Optional)
+## 5. Bonus (Optional)
 
 Pick **one** of the following if you want to go further:
 
@@ -119,7 +128,7 @@ Describe what you added and why in your `DEPLOYMENT.md`.
 
 ---
 
-## 5. Submission Instructions
+## 6. Submission Instructions
 
 1. **Fork** this repository.
 2. Complete all three parts in your fork.
@@ -137,5 +146,6 @@ Describe what you added and why in your `DEPLOYMENT.md`.
 - [ ] No secrets or `.pem` files committed to the repository
 - [ ] SSH port 22 is **not** open to the world (`0.0.0.0/0`)
 - [ ] `DEPLOYMENT.md` is present and covers the four points in Part 3
+- [ ] `OBSERVABILITY.md` or the observability section in `DEPLOYMENT.md` explains monitoring and logging
 - [ ] This README has been replaced with your own documentation
 - [ ] Commit history shows progress over time (not a single upload commit)

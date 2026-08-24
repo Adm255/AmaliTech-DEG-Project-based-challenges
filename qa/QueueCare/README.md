@@ -1,6 +1,6 @@
 # QueueCare-QA
 
-# 🏥 QueueCare — Technical Assessment
+# 🏥 QueueCare: Technical Assessment
 
 > **QA Engineering Challenge: Build It. Then Break It.**
 
@@ -8,7 +8,7 @@
 
 ## What Is This?
 
-This is a combined development and test automation assessment. You will build a small but real working application — a Clinic Appointment System called **QueueCare** — and then write a full automated test suite against your own code.
+This is a combined development and test automation assessment. You will build a small but real working application, a Clinic Appointment System called **QueueCare**, and then write a full automated test suite against your own code.
 
 This is intentional. Real QA engineers understand systems well enough to break them. That is what we are testing here.
 
@@ -16,7 +16,7 @@ This is intentional. Real QA engineers understand systems well enough to break t
 
 ## The Two-Part Challenge
 
-### Part 1 — Build the Application
+### Part 1 - Build the Application
 
 Build a simplified clinic appointment system with the following features:
 
@@ -24,7 +24,7 @@ Build a simplified clinic appointment system with the following features:
 
 - Register a new user (name, email, password, role)
 - Login and receive a token (JWT or session-based)
-- Protect all endpoints — unauthenticated requests must be rejected
+- Protect all endpoints. Unauthenticated requests must be rejected
 
 #### 📅 Appointment Management (CRUD)
 
@@ -42,16 +42,16 @@ Build a simplified clinic appointment system with the following features:
 
 #### 🔒 Role-Based Authorization
 
-- **Patient** — can only manage their own appointments
-- **Staff / Admin** — can view and manage all appointments, and mark patients as served
+- **Patient** - can only manage their own appointments
+- **Staff / Admin** - can view and manage all appointments, and mark patients as served
 
 > **Keep it simple.** A clean REST API with basic HTML pages is perfectly fine. You do not need a polished UI. Spend your energy on correctness and test quality.
 
 ---
 
-### Part 2 — Test Automation
+### Part 2 - Test Automation
 
-Write automated tests against the application you just built. You are testing your own code — we expect you to know where the weak spots are.
+Write automated tests against the application you just built. You are testing your own code, and we expect you to know where the weak spots are.
 
 #### 🔌 API Automation
 
@@ -90,18 +90,18 @@ You must cover all three categories:
 
 Automate the following flows through the browser:
 
-- **Login flow** — valid credentials, invalid credentials, empty form submission
-- **Create appointment** — fill and submit the form, verify the booking appears
-- **Form validation** — empty fields, invalid input formats
-- **Update or cancel** — make a change and verify it is reflected in the UI
+- **Login flow** - valid credentials, invalid credentials, empty form submission
+- **Create appointment** - fill and submit the form, verify the booking appears
+- **Form validation** - empty fields, invalid input formats
+- **Update or cancel** - make a change and verify it is reflected in the UI
 
-> UI tests must be stable. Use meaningful selectors — data attributes, labels, or accessible roles. Avoid relying on CSS classes or element positions. Flaky tests are a red flag.
+> UI tests must be stable. Use meaningful selectors, such as data attributes, labels, or accessible roles. Avoid relying on CSS classes or element positions. Flaky tests are a red flag.
 
 ---
 
-### Part 3 — Test Report
+### Part 3 - Test Report
 
-Write a short, honest report. This is not a formality — we read it carefully.
+Write a short, honest report. This is not a formality, we read it carefully.
 
 | Section                    | What to Cover                                                       |
 | -------------------------- | ------------------------------------------------------------------- |
@@ -109,13 +109,13 @@ Write a short, honest report. This is not a formality — we read it carefully.
 | **What You Tested**        | Which parts you covered and which you skipped, and why              |
 | **What You Automated**     | Which scenarios are automated vs manual, and why you drew that line |
 | **Bugs Found**             | Any bugs or unexpected behaviour you found in your own system       |
-| **What You Would Improve** | Given more time — what would you test, fix, or refactor             |
+| **What You Would Improve** | Given more time, what would you test, fix, or refactor              |
 
-> ⚠️ **Strong candidates find bugs in their own systems.** If your report says "no bugs found", that is almost always a sign of incomplete testing — not perfect code.
+> ⚠️ **Strong candidates find bugs in their own systems.** If your report says "no bugs found", that is almost always a sign of incomplete testing, not perfect code.
 
 ---
 
-## Technology — Your Choice
+## Technology: Your Choice
 
 Use whatever you know best. The following are suggestions only.
 
@@ -133,12 +133,12 @@ Use whatever you know best. The following are suggestions only.
 
 ### Database
 
-| Option                | Notes                                                 |
-| --------------------- | ----------------------------------------------------- |
-| SQLite                | Zero setup, file-based, perfect for assessments       |
-| PostgreSQL            | Production-grade, widely supported                    |
-| MongoDB               | Flexible schema, easy to start                        |
-| In-memory (array/map) | Simplest option — perfectly valid for this assessment |
+| Option                | Notes                                                |
+| --------------------- | ---------------------------------------------------- |
+| SQLite                | Zero setup, file-based, perfect for assessments      |
+| PostgreSQL            | Production-grade, widely supported                   |
+| MongoDB               | Flexible schema, easy to start                       |
+| In-memory (array/map) | Simplest option, perfectly valid for this assessment |
 
 ### API Testing
 
@@ -147,19 +147,19 @@ Use whatever you know best. The following are suggestions only.
 | Jest + Supertest          | JavaScript                 |
 | Pytest + Requests / HTTPX | Python                     |
 | RestAssured               | Java                       |
-| Postman + Newman          | Any — GUI + CLI runner     |
+| Postman + Newman          | Any, GUI + CLI runner      |
 | Playwright (API mode)     | JavaScript / Python / Java |
-| Karate DSL                | Any — Gherkin-style        |
+| Karate DSL                | Any, Gherkin-style         |
 
 ### UI Automation
 
-| Tool               | Language                                 |
-| ------------------ | ---------------------------------------- |
-| Playwright         | JavaScript / Python / Java — recommended |
-| Cypress            | JavaScript                               |
-| Selenium WebDriver | Java / Python                            |
-| Puppeteer          | JavaScript                               |
-| Robot Framework    | Python                                   |
+| Tool               | Language                                |
+| ------------------ | --------------------------------------- |
+| Playwright         | JavaScript / Python / Java, recommended |
+| Cypress            | JavaScript                              |
+| Selenium WebDriver | Java / Python                           |
+| Puppeteer          | JavaScript                              |
+| Robot Framework    | Python                                  |
 
 ### Frontend
 
@@ -167,14 +167,14 @@ Plain HTML + JavaScript is completely fine. Other options:
 
 - React.js or Vue.js if you prefer a structured frontend
 - Server-side templates (Jinja, EJS, Thymeleaf, Blade)
-- No UI at all — a documented Postman collection is acceptable
+- No UI at all, a documented Postman collection is acceptable
 
 ---
 
 ## Deliverables
 
-- [ ] `README.md` — instructions to install, run, and test everything from scratch
-- [ ] `TEST_REPORT.md` — your written test report
+- [ ] `README.md` - instructions to install, run, and test everything from scratch
+- [ ] `TEST_REPORT.md` - your written test report
 - Submission link: https://forms.cloud.microsoft/e/vU0px4a5du
 
 ### Your README Must Include
@@ -207,7 +207,7 @@ We are not just checking whether the tests pass.
 ## Final Notes
 
 - A small, well-tested system beats a large, poorly-tested one every time
-- Negative and edge case tests matter more than happy path tests — anyone can write a happy path test
+- Negative and edge case tests matter more than happy path tests, anyone can write a happy path test
 - Acknowledging a known bug in your report is far better than pretending it does not exist
 - If something does not work, document it and explain why
 

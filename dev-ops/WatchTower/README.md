@@ -1,6 +1,6 @@
 # WatchTower
 
-This challenge is designed to test your understanding of observability — one of the most critical and often overlooked areas of DevOps engineering.
+This challenge is designed to test your understanding of observability, one of the most critical and often overlooked areas of DevOps engineering.
 
 ---
 
@@ -17,7 +17,7 @@ They have no dashboards, no alerting, and their logs are scattered across three 
 
 ### Your Role
 
-You are joining as their DevOps engineer. The services are already written. Your job is to **wire up a full observability stack** — metrics collection, dashboards, and alerting — so the team can see what is happening inside their system at any time, and get notified before customers do.
+You are joining as their DevOps engineer. The services are already written. Your job is to **wire up a full observability stack**, covering metrics collection, dashboards, and alerting, so the team can see what is happening inside their system at any time and get notified before customers do.
 
 ---
 
@@ -45,7 +45,7 @@ Do not change the business logic of any service. You may add environment variabl
 
 ## 3. The Assignment
 
-### Part 1 — Unified Local Environment
+### Part 1 - Unified Local Environment
 
 **Deliverable:** A `docker-compose.yml` that runs the entire stack together.
 
@@ -58,7 +58,7 @@ Requirements:
 
 ---
 
-### Part 2 — Metrics Collection
+### Part 2 - Metrics Collection
 
 **Deliverable:** Prometheus added to the `docker-compose.yml` and configured to scrape all three services.
 
@@ -71,7 +71,7 @@ Requirements:
 
 ---
 
-### Part 3 — Dashboards
+### Part 3 - Dashboards
 
 **Deliverable:** Grafana added to the Compose stack with a pre-built dashboard.
 
@@ -83,11 +83,11 @@ Requirements:
   - HTTP request rate for each service
   - Error rate (5xx responses) for each service
   - Current health status of each service
-- The dashboard must load automatically when Grafana starts — no manual import steps. Use [Grafana provisioning](https://grafana.com/docs/grafana/latest/administration/provisioning/) to achieve this.
+- The dashboard must load automatically when Grafana starts, with no manual import steps. Use [Grafana provisioning](https://grafana.com/docs/grafana/latest/administration/provisioning/) to achieve this.
 
 ---
 
-### Part 4 — Alerting
+### Part 4 - Alerting
 
 **Deliverable:** Alert rules defined in a `prometheus/alerts.yml` file.
 
@@ -107,7 +107,7 @@ Requirements:
 
 ---
 
-### Part 5 — Structured Logging
+### Part 5 - Structured Logging
 
 **Deliverable:** Documentation in your README.
 
@@ -137,11 +137,11 @@ Describe what you added and why in your README.
 
 Your final `README.md` must replace these instructions and cover:
 
-1. **Architecture diagram** — show the full observability stack (services → Prometheus → Grafana → alerts).
-2. **Setup instructions** — how to start the stack and verify everything is working.
-3. **Dashboard walkthrough** — a screenshot and short description of each panel.
-4. **Alert testing** — how you confirmed each alert fires correctly.
-5. **Log commands** — the two log commands from Part 5 with example output.
+1. **Architecture diagram** - show the full observability stack (services → Prometheus → Grafana → alerts).
+2. **Setup instructions** - how to start the stack and verify everything is working.
+3. **Dashboard walkthrough** - a screenshot and short description of each panel.
+4. **Alert testing** - how you confirmed each alert fires correctly.
+5. **Log commands** - the two log commands from Part 5 with example output.
 
 ---
 
