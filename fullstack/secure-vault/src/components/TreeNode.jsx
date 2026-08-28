@@ -6,18 +6,51 @@ export default function TreeNode({ node, selectedItem, onSelect }) {
   const isSelected = selectedItem?.id === node.id;
 
   const handleClick = (e) => {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     onSelect(node);
     if (isFolder) {
       setIsOpen(!isOpen);
     }
   };
 
+  const handleKeyDown = (e) => {
+    
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter", " "].includes(e.key)) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    if (e.key === 'Enter' || e.key === ' ') {
+      handleClick();
+    } 
+    else if (e.key === 'ArrowRight' && isFolder && !isOpen) {
+      setIsOpen(true);
+    } 
+    else if (e.key === 'ArrowLeft' && isFolder && isOpen) {
+      setIsOpen(false); 
+    } 
+    else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+     
+      const focusableNodes = Array.from(document.querySelectorAll('.tree-node-focusable'));
+      const currentIndex = focusableNodes.indexOf(document.activeElement);
+      
+      if (currentIndex !== -1) {
+        const nextIndex = e.key === 'ArrowDown' ? currentIndex + 1 : currentIndex - 1;
+       
+        if (focusableNodes[nextIndex]) {
+          focusableNodes[nextIndex].focus();
+        }
+      }
+    }
+  };
+
   return (
     <div className="pl-3 mt-0.5 select-none">
       <div
+        tabIndex={0}
         onClick={handleClick}
-        className={`flex items-center space-x-2 px-2.5 py-1.5 rounded-md cursor-pointer transition-all duration-150 text-sm ${
+        onKeyDown={handleKeyDown}
+        className={`tree-node-focusable flex items-center space-x-2 px-2.5 py-1.5 rounded-md cursor-pointer transition-all duration-150 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 focus:ring-offset-slate-900 ${
           isSelected
             ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
             : 'text-slate-300 hover:bg-slate-800/60'
