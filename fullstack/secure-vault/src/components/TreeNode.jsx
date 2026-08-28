@@ -1,40 +1,50 @@
 import { useState } from 'react';
 
-export default function TreeNode({ node }) {
-  // State to track if this specific folder is open or closed
+export default function TreeNode({ node, selectedItem, onSelect }) {
   const [isOpen, setIsOpen] = useState(false);
   const isFolder = node.type === 'folder';
+  const isSelected = selectedItem?.id === node.id;
 
-  // Toggle function for when a user clicks the folder
-  const handleToggle = () => {
+  const handleClick = (e) => {
+    e.stopPropagation();
+    onSelect(node);
     if (isFolder) {
       setIsOpen(!isOpen);
     }
   };
 
   return (
-    <div className="pl-4 mt-1 select-none">
-      {/* The Row representing the current File or Folder */}
-      <div 
-        className={`flex items-center space-x-2 p-1.5 rounded-md cursor-pointer transition-colors ${
-          isFolder ? 'hover:bg-slate-800' : 'hover:bg-slate-800/50'
+    <div className="pl-3 mt-0.5 select-none">
+      <div
+        onClick={handleClick}
+        className={`flex items-center space-x-2 px-2.5 py-1.5 rounded-md cursor-pointer transition-all duration-150 text-sm ${
+          isSelected
+            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+            : 'text-slate-300 hover:bg-slate-800/60'
         }`}
-        onClick={handleToggle}
       >
-        {/* Render different icons based on type and open state */}
-        <span className="text-lg">
+        <span className="text-base">
           {isFolder ? (isOpen ? '📂' : '📁') : '📄'}
         </span>
-        <span className={`${isFolder ? 'text-slate-200 font-medium' : 'text-slate-400'}`}>
+        <span className={`truncate ${isFolder ? 'font-medium text-slate-100' : 'text-slate-300'}`}>
           {node.name}
         </span>
+        {node.size && (
+          <span className="ml-auto text-xs text-slate-500 font-mono">
+            {node.size}
+          </span>
+        )}
       </div>
 
-      {/* RECURSION HAPPENS HERE: If it's an open folder, map its children and call TreeNode again */}
       {isFolder && isOpen && node.children && (
-        <div className="border-l border-slate-700 ml-3">
-          {node.children.map((childNode) => (
-            <TreeNode key={childNode.id} node={childNode} />
+        <div className="border-l border-slate-700/70 ml-3.5 pl-1">
+          {node.children.map((child) => (
+            <TreeNode
+              key={child.id}
+              node={child}
+              selectedItem={selectedItem}
+              onSelect={onSelect}
+            />
           ))}
         </div>
       )}
