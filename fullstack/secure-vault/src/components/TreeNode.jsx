@@ -1,20 +1,19 @@
 import { useState } from 'react';
 
-export default function TreeNode({ node, selectedItem, onSelect }) {
+export default function TreeNode({ node, selectedItem, onSelect, currentPath = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const isFolder = node.type === 'folder';
   const isSelected = selectedItem?.id === node.id;
 
   const handleClick = (e) => {
     if (e) e.stopPropagation();
-    onSelect(node);
+    onSelect(node, currentPath);
     if (isFolder) {
       setIsOpen(!isOpen);
     }
   };
 
   const handleKeyDown = (e) => {
-    
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter", " "].includes(e.key)) {
       e.preventDefault();
       e.stopPropagation();
@@ -27,16 +26,14 @@ export default function TreeNode({ node, selectedItem, onSelect }) {
       setIsOpen(true);
     } 
     else if (e.key === 'ArrowLeft' && isFolder && isOpen) {
-      setIsOpen(false); 
+      setIsOpen(false);
     } 
     else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-     
       const focusableNodes = Array.from(document.querySelectorAll('.tree-node-focusable'));
       const currentIndex = focusableNodes.indexOf(document.activeElement);
       
       if (currentIndex !== -1) {
         const nextIndex = e.key === 'ArrowDown' ? currentIndex + 1 : currentIndex - 1;
-       
         if (focusableNodes[nextIndex]) {
           focusableNodes[nextIndex].focus();
         }
@@ -77,6 +74,7 @@ export default function TreeNode({ node, selectedItem, onSelect }) {
               node={child}
               selectedItem={selectedItem}
               onSelect={onSelect}
+              currentPath={[...currentPath, child.name]}
             />
           ))}
         </div>
