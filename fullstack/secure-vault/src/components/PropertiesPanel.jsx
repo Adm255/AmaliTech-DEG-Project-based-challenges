@@ -38,11 +38,14 @@ export default function PropertiesPanel({ item }) {
         </div>
 
         <div>
-          <span className="text-slate-500 uppercase tracking-wider block mb-1">Security Status</span>
+          <span className="text-slate-500 uppercase tracking-wider block mb-1">Security Status (UI demo)</span>
           <div className="flex items-center space-x-2 bg-slate-950 p-2 rounded border border-slate-800">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span className="text-emerald-400 font-medium font-mono text-xs">Encrypted (AES-256)</span>
           </div>
+          <p className="text-[10px] text-slate-600 mt-1">
+            Illustrative only — not derived from real encryption data.
+          </p>
         </div>
       </div>
     </div>
