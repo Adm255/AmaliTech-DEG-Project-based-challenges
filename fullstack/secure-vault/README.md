@@ -118,10 +118,13 @@ application, including:
 > Design file link will be added here after the final design-system PDF is
 > published.
 
-**Design System:** `COMING SOON`
+### Design File
 
----
+The SecureVault Design System documents the visual foundation of the
+application, including typography, color palette, spacing, component states,
+and accessibility states.
 
+[View the SecureVault Design System PDF](./docs/SecureVault_Design_System_Final.pdf)
 ## Technology Stack
 
 - React
