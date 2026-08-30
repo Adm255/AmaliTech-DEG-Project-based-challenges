@@ -113,10 +113,7 @@ application, including:
 - Selected states
 - Hover states
 
-### Design File
-
-> Design file link will be added here after the final design-system PDF is
-> published.
+---
 
 ### Design File
 
@@ -125,6 +122,9 @@ application, including typography, color palette, spacing, component states,
 and accessibility states.
 
 [View the SecureVault Design System PDF](./docs/SecureVault_Design_System_Final.pdf)
+
+---
+
 ## Technology Stack
 
 - React
