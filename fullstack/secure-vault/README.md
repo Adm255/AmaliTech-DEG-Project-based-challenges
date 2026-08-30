@@ -1,279 +1,161 @@
 # SecureVault Explorer
 
-A modern, dark-mode file explorer interface designed for SecureVault Inc., an
-enterprise cloud-security platform serving organizations such as law firms and
-financial institutions.
+A modern, accessible file explorer interface designed for SecureVault's
+enterprise cloud-security environment.
 
-The application provides an intuitive way to navigate deeply nested folder
-structures, inspect file and folder metadata, search through the vault, and
-navigate the explorer using the keyboard.
+SecureVault Explorer provides an intuitive way to navigate nested folders,
+inspect file metadata, use keyboard navigation, and quickly locate files
+through search.
 
 ---
 
 ## Overview
 
-SecureVault Explorer transforms a complex hierarchical file structure into a
-clear and efficient interactive interface.
+SecureVault Explorer is a React-based frontend application that transforms
+a deeply nested file structure into an interactive file-explorer experience.
 
-The application focuses on:
+The interface uses a dark, security-focused visual language designed to
+communicate precision, clarity, and reliability.
 
-- Recursive folder navigation
-- File and folder inspection
-- Keyboard accessibility
-- Search and filtering
-- Automatic expansion of matching nested folders
-- Security-oriented visual design
-- Clear visual hierarchy and interaction states
-
-The interface follows a dark-mode visual language intended to communicate
-precision, security, and efficiency.
+The application works entirely from the provided `data.json` structure and
+renders the hierarchy dynamically without requiring changes to the underlying
+data model.
 
 ---
 
 ## Features
 
-### Recursive File Explorer
+### Recursive File Tree
 
-The explorer renders hierarchical data recursively, allowing the interface to
-handle deeply nested folder structures without requiring separate components for
-each depth level.
+The explorer renders folders and files recursively from the provided JSON
+data structure.
 
-Users can:
+Folders can be expanded and collapsed without reloading the page, and the
+recursive component structure supports arbitrary nesting depth.
 
-- Expand folders
-- Collapse folders
-- Navigate through nested directories
-- Select files and folders
-- View the current location through the breadcrumb path
+### File & Folder Selection
 
-The recursive structure allows the same component to represent both shallow and
-deep directory structures.
+Users can select files or folders directly from the explorer.
 
----
+The selected item receives a distinct visual state and its information is
+displayed in the Properties Panel.
 
-### File & Folder Properties
+### Properties Panel
 
-Selecting an item displays its properties in the inspection panel.
-
-The panel provides information such as:
+The Properties Panel provides contextual information for the selected item,
+including:
 
 - Name
 - Type
-- Item ID
 - Size
-- Security status
+- Item ID
 
-For folders, the size field represents the number of items contained within
-the folder.
+The panel adapts its displayed information depending on whether the selected
+item is a file or folder.
 
----
+### Keyboard Accessibility
 
-### Keyboard Navigation
+The explorer supports keyboard-based navigation.
 
-The explorer supports keyboard-based navigation for power users and improved
-accessibility.
+Supported controls include:
 
-Supported controls:
+- `Arrow Up` — move focus to the previous visible item
+- `Arrow Down` — move focus to the next visible item
+- `Arrow Right` — expand a folder
+- `Arrow Left` — collapse an expanded folder
+- `Enter` — select the focused item
+- `Space` — activate the focused item
 
-| Key | Action |
-|-----|--------|
-| `Arrow Up` | Move focus to the previous visible item |
-| `Arrow Down` | Move focus to the next visible item |
-| `Arrow Right` | Expand a collapsed folder |
-| `Arrow Left` | Collapse an expanded folder |
-| `Enter` | Select or activate the focused item |
-| `Space` | Activate the focused item |
-
-Visible focus states are provided so keyboard users can clearly identify the
-currently focused item.
-
----
+The tree uses semantic `tree` and `treeitem` roles together with keyboard
+focus management.
 
 ### Search & Filter
 
-The application includes a search field for finding files and folders.
+The explorer includes a search field for quickly locating files and folders.
 
-Search supports nested structures. When a matching item exists deeper inside
-the hierarchy, its parent folders are automatically expanded so that the
-result becomes visible.
+Search results are filtered recursively, including items nested deeply inside
+the folder hierarchy.
 
-This allows users to locate files without manually opening every folder.
+When a matching item exists inside a folder, the relevant parent folders are
+automatically expanded so that the result is immediately visible.
 
----
-
-## Wildcard Feature
+This feature was implemented as the optional bonus feature from the challenge.
 
 ### Security Status Indicator
 
-The original requirements focus on navigation and file inspection but do not
-provide users with additional security context.
+The Properties Panel includes an additional security-status indicator to
+provide contextual security information within the interface.
 
-To improve the enterprise-security experience, the Properties Panel includes a
-security status indicator.
-
-The current interface displays:
-
-`Encrypted (AES-256)`
-
-This gives users an immediate visual indication of the security state associated
-with the selected item.
-
-> **Important:** The current security status is a UI demonstration only. It
-> does not represent real encryption performed by the frontend. In a production
-> environment, this information would be provided and verified by the backend
-> security layer.
-
-### Business Value
-
-For organizations such as law firms and banks, security visibility is an
-important part of the file-management experience.
-
-Displaying security status directly within the inspection panel can help users
-understand the protection state of sensitive files without leaving the explorer.
+The current `Encrypted (AES-256)` status is intentionally presented as a UI
+demonstration only. It is not derived from real encryption operations or
+encryption metadata.
 
 ---
 
 ## Design System
 
-The SecureVault interface follows a dedicated design system covering:
+The interface follows a dark-mode design direction intended to communicate:
 
-- Typography
-- Color palette
-- Spacing
-- Component states
-- Focus states
-- Selection states
-- Dark-mode surfaces
+- Cyber security
+- Precision
+- Speed
+- Clarity
+- Enterprise reliability
 
-The design system was created before implementation and is reflected in the
-implemented interface.
+The design system defines the visual foundation used throughout the
+application, including:
 
-### Design System PDF
-
-The project includes the design-system handoff document:
-
-`design/SecureVault_Design_System.pdf`
-
-The document contains:
-
-- Primary explorer design frames
-- Nested navigation frame
 - Typography scale
 - Color palette
-- Spacing grid
+- Spacing system
 - Component states
-- Accessibility considerations
-- Design-to-implementation notes
+- Focus states
+- Selected states
+- Hover states
+
+### Design File
+
+> Design file link will be added here after the final design-system PDF is
+> published.
+
+**Design System:** `COMING SOON`
 
 ---
 
-## Design Principles
+## Technology Stack
 
-### Cyber-Secure
+- React
+- Vite
+- JavaScript
+- Tailwind CSS
+- ESLint
 
-Dark surfaces, restrained contrast, and emerald security accents create a
-security-focused visual language.
+No component library such as Bootstrap, Material UI, Chakra UI, or
+Ant Design is used.
 
-### Precise
-
-Clear spacing, consistent alignment, readable metadata, and predictable
-interaction states reduce visual noise.
-
-### Fast
-
-The interface allows users to navigate nested structures, search for content,
-and inspect items without page reloads.
-
-### Accessible
-
-Keyboard navigation and visible focus states are treated as part of the core
-interface rather than an additional feature.
-
----
-
-## Typography
-
-The interface uses a clear hierarchy to maintain readability.
-
-| Level | Size | Purpose |
-|-------|------|---------|
-| Display | 30px | Major presentation titles |
-| Heading | 21px | Section headings |
-| Subheading | 15px | Component headings |
-| Body | 11–12px | General interface content |
-| UI Label | 10–12px | Metadata and navigation |
-| Caption | 9–10px | Secondary information |
-
-The implementation prioritizes readable text sizes and sufficient contrast,
-especially for important navigation and metadata.
-
----
-
-## Color System
-
-| Token | Value | Purpose |
-|-------|-------|---------|
-| App Background | `#060A1A` | Main application background |
-| Explorer Panel | `#0F172A` | Primary navigation surface |
-| Secondary Panel | `#111827` | Properties and secondary surfaces |
-| Border | `#1E293B` | Dividers and component boundaries |
-| Primary Text | `#E5E7EB` | Main content |
-| Secondary Text | `#94A3B8` | Supporting information |
-| Security Accent | `#10B981` | Security, focus and active states |
-| Selected Surface | `#0F3D38` | Selected navigation items |
-
----
-
-## Spacing System
-
-The interface follows a 4px base spacing grid.
-
-Common spacing values include:
-
-`4px · 8px · 12px · 16px · 24px · 32px · 48px`
-
-The spacing system is used consistently for:
-
-- Component padding
-- Tree indentation
-- Panel spacing
-- Section gaps
-- Navigation hierarchy
-
----
-
-## Component States
-
-Interactive components use consistent states:
-
-- Default
-- Hover
-- Focus
-- Selected
-- Expanded
-- Search Active
-- Search Empty
-
-The selected and focused states use the SecureVault emerald accent to provide
-clear visual feedback.
+The interface components are implemented directly within the application,
+with Tailwind CSS used as the styling foundation.
 
 ---
 
 ## Recursive Strategy
 
-The folder structure is represented as a tree where each node can contain
-children.
+The file explorer uses a recursive `TreeNode` component to represent the
+hierarchical data.
 
-The `TreeNode` component renders one node and, when the node is a folder with
-children, renders another `TreeNode` for each child.
+Each node determines whether it represents a folder or a file.
 
-Conceptually:
+For folders containing children, the component renders another set of
+`TreeNode` components for those children.
+
+Conceptually, the structure follows:
 
 ```text
 TreeNode
  ├── Folder
  │    ├── TreeNode
  │    ├── TreeNode
- │    └── TreeNode
+ │    └── Folder
+ │         ├── TreeNode
  │         └── TreeNode
  └── File
