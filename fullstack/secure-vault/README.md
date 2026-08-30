@@ -81,14 +81,25 @@ automatically expanded so that the result is immediately visible.
 
 This feature was implemented as the optional bonus feature from the challenge.
 
+---
+
+## Wildcard Feature
+
 ### Security Status Indicator
 
-The Properties Panel includes an additional security-status indicator to
-provide contextual security information within the interface.
+The Properties Panel includes an additional security-status indicator beyond
+the core requirements.
 
-The current `Encrypted (AES-256)` status is intentionally presented as a UI
-demonstration only. It is not derived from real encryption operations or
-encryption metadata.
+The feature provides contextual security information for the selected item
+and reinforces SecureVault's enterprise-security positioning.
+
+The current `Encrypted (AES-256)` label is intentionally presented as a UI
+demonstration only. It does not represent a real encryption operation or
+cryptographic verification.
+
+This feature was chosen because security context is particularly relevant to
+an enterprise cloud-storage product and can help users understand the
+security-oriented nature of the platform at a glance.
 
 ---
 
@@ -109,11 +120,10 @@ application, including:
 - Color palette
 - Spacing system
 - Component states
-- Focus states
-- Selected states
 - Hover states
-
----
+- Selected states
+- Focus states
+- Accessibility considerations
 
 ### Design File
 
@@ -141,24 +151,16 @@ with Tailwind CSS used as the styling foundation.
 
 ---
 
-## Recursive Strategy
+## Setup Instructions
 
-The file explorer uses a recursive `TreeNode` component to represent the
-hierarchical data.
+### Prerequisites
 
-Each node determines whether it represents a folder or a file.
+- Node.js 18 or later
+- npm
 
-For folders containing children, the component renders another set of
-`TreeNode` components for those children.
+### Installation
 
-Conceptually, the structure follows:
+Clone the repository:
 
-```text
-TreeNode
- ├── Folder
- │    ├── TreeNode
- │    ├── TreeNode
- │    └── Folder
- │         ├── TreeNode
- │         └── TreeNode
- └── File
+```bash
+git clone https://github.com/Adm255/AmaliTech-DEG-Project-based-challenges.git
