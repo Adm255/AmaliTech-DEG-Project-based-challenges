@@ -1,0 +1,75 @@
+
+name: DeployReady CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test:
+    name: Test Application
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: dev-ops/DeployReady/app
+
+    steps:
+      # Get the repository source code.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Configure Node.js 20 and npm dependency caching.
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: dev-ops/DeployReady/app/package-lock.json
+
+      # Install dependencies from the lock file.
+      - name: Install dependencies
+        run: npm ci
+
+      # Run the application tests.
+      - name: Run tests
+        run: npm test
+
+  docker:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      # Get the repository source code.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Authenticate to GitHub Container Registry.
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build the application Docker image.
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ghcr.io/adm255/deployready-app:latest \
+            -f dev-ops/DeployReady/Dockerfile \
+            dev-ops/DeployReady
+
+      # Publish the image to GitHub Container Registry.
+      - name: Push Docker image
+        run: docker push ghcr.io/adm255/deployready-app:latest
