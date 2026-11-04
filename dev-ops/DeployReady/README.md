@@ -147,6 +147,7 @@ The test job runs for pushes and pull requests targeting `main`. On pushes to `m
 5. Authenticate with GitHub Container Registry.
 6. Publish the image to GHCR.
 7. Trigger a Render deployment after the Docker job succeeds on pushes to `main`.
+8. Retry the Render `/health` endpoint, requiring HTTP 200 and JSON status `ok`.
 
 ### Container Image
 
@@ -156,7 +157,7 @@ ghcr.io/adm255/deployready-app:latest
 
 The workflow uses the repository-provided GitHub token for registry authentication and the `RENDER_DEPLOY_HOOK_URL` GitHub Actions secret to trigger Render.
 
-Render deployment runs automatically after a successful Docker image publish on pushes to `main`. **Post-deployment health verification and automatic rollback are not implemented.**
+Render deployment runs automatically after a successful Docker image publish on pushes to `main`. The workflow triggers the Render deploy hook and then retries the public health endpoint, requiring HTTP 200 and JSON status `ok`. The deploy hook does not wait for Render to finish deploying, so this probe can reach the previous healthy release; it does not prove that the new image is serving. Automatic rollback is not implemented.
 
 ## Cloud Deployment
 
@@ -175,13 +176,11 @@ The following deployed endpoint checks have succeeded:
 - `GET` [https://deployready-app-latest.onrender.com/metrics](https://deployready-app-latest.onrender.com/metrics) returns uptime, memory usage, and the Node.js version.
 - `POST` [https://deployready-app-latest.onrender.com/data](https://deployready-app-latest.onrender.com/data) accepts JSON and echoes the submitted JSON.
 
-These checks were performed successfully against the live Render service. They are manual verification results; the workflow does not run a post-deployment health check or automatically roll back a release.
+These endpoint checks were performed successfully against the live Render service. The GitHub Actions workflow also probes `/health` after triggering the Render hook. Because it does not wait for Render's deployment to complete or identify the image currently serving, that workflow probe is not conclusive verification of the new release. No automatic rollback is configured.
 
 ### Deployment Decision
 
-Render was selected because the Google Cloud billing account was unavailable for provisioning a virtual machine.
-
-Render provides a managed container deployment without requiring manual VM administration.
+Render was used to get the containerized API running while the VM provider and account setup remain undecided. Render provides a managed container deployment without requiring manual VM administration.
 
 However, this deployment does not fulfill the original challenge's virtual machine, SSH restriction, firewall configuration, or least-privilege cloud IAM requirements.
 
@@ -230,7 +229,7 @@ The project follows these security practices:
 - Environment configuration is separated from application source.
 - `.env.example` contains the expected configuration.
 - Real environment secrets are not intended to be committed.
-- GitHub Actions uses repository secrets for registry authentication.
+- GitHub Actions uses `GITHUB_TOKEN` for GHCR publishing and a repository secret for the Render deploy hook.
 - The deployment guide documents the current platform limitations.
 
 ## Project Structure
@@ -248,6 +247,13 @@ DeployReady/
 |-- .gitignore
 |-- Dockerfile
 |-- docker-compose.yml
+|-- docker-compose.vm.yml
+|-- deploy/
+|   |-- VM-OPERATIONS.md
+|   |-- deploy-release.sh
+|   `-- nginx/
+|       |-- active-upstream.conf
+|       `-- nginx.conf
 |-- DEPLOYMENT.md
 `-- README.md
 ```
@@ -256,14 +262,14 @@ DeployReady/
 
 The following original requirements remain incomplete:
 
-- Provision a cloud virtual machine.
+- Provision a cloud virtual machine, install Docker, and deploy the application container to it.
 - Configure the VM firewall, including HTTP port 80 and SSH port 22 restricted to the user's IP.
 - Configure least-privilege cloud IAM for deployment.
-- Implement post-deployment health verification in the CI/CD workflow.
+- Verify that post-deployment health checks reach the newly deployed image after rollout completes.
 - Implement automatic rollback to the previous image when health verification fails.
-- Configure an automated monitoring alert.
+- Configure continuous monitoring and an automated alert for health failures or rising HTTP 5xx errors.
 
-Render provides a managed container service, not the challenge's VM, SSH restriction, firewall, or cloud IAM setup. These items remain incomplete. Post-deployment health verification, automatic rollback, and monitoring alerts also remain incomplete.
+Render provides a managed container service, not the challenge's VM, SSH restriction, firewall, or cloud IAM setup. The workflow checks Render health after calling the deploy hook, but it does not confirm that rollout completed or roll back a failed release. Continuous monitoring and alerting are also not configured.
 
 ## Submission
 

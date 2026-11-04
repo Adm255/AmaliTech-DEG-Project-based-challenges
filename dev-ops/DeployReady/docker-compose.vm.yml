@@ -1,0 +1,26 @@
+services:
+  app:
+    image: ${DEPLOY_IMAGE:?Set DEPLOY_IMAGE to an immutable GHCR image reference}
+    environment:
+      PORT: 3000
+    expose:
+      - "3000"
+    restart: unless-stopped
+    networks:
+      - app_network
+
+  proxy:
+    image: nginx:alpine
+    container_name: deployready-vm-proxy
+    command: ["nginx", "-g", "daemon off;", "-c", "/etc/nginx/deploy/nginx.conf"]
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx:/etc/nginx/deploy:ro
+    restart: unless-stopped
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    name: deployready-vm

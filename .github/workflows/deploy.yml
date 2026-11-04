@@ -81,6 +81,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
+      # Trigger Render after the Docker image has been published.
       - name: Trigger Render deployment
         env:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
@@ -116,6 +117,7 @@ jobs:
               ;;
           esac
 
+      # Retry the Render health endpoint and require the expected healthy JSON response.
       - name: Verify deployed application health
         shell: bash
         run: |

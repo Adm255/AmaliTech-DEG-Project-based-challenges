@@ -87,10 +87,12 @@ The workflow:
 4. Runs the application tests.
 5. Builds the Docker image.
 6. Publishes the image to GitHub Container Registry.
+7. Triggers the Render deploy hook after a successful image publish.
+8. Retries the Render `/health` endpoint and requires HTTP 200 with JSON status `ok`.
 
 The workflow uses GitHub Actions permissions and the built-in `GITHUB_TOKEN` to publish the image.
 
-The current workflow does not deploy directly to Render. Render uses the published GHCR image for the web service deployment.
+The workflow triggers Render using its deploy hook after publishing the GHCR image. It then probes the public health endpoint. The hook request only triggers deployment; the workflow does not wait for Render to finish or verify which image is serving, so the probe may reach the previous healthy release. The workflow does not roll back a failed deployment.
 
 ## 5. Cloud Deployment
 
@@ -132,6 +134,8 @@ The public health endpoint was tested and returned:
 {"status":"ok"}
 ```
 
+The GitHub Actions workflow also checks this endpoint after triggering the Render hook. This check confirms that the endpoint responds, but does not conclusively verify the new release because the workflow does not wait for Render's rollout to finish.
+
 ## 7. Observability
 
 ### Health monitoring
@@ -145,6 +149,8 @@ GET /health
 The endpoint returns the application health status.
 
 Check the public endpoint to verify that the service is responding.
+
+The workflow performs a bounded health probe after deployment is triggered. It is not continuous uptime monitoring and it does not alert on outages or rising HTTP 5xx rates.
 
 ### Application logs
 
@@ -171,7 +177,15 @@ GET /metrics
 
 The metrics endpoint reports application uptime and memory usage.
 
-## 8. Security
+The application does not currently expose an HTTP 5xx rate metric. Review Render logs for runtime errors; automated error-rate monitoring and alert delivery are not configured.
+
+## 8. Original VM requirements not yet completed
+
+The current deployment is on Render and does not provide the original challenge's VM setup. No cloud VM has been provisioned, Docker has not been installed on a VM, and this project has no configured VM firewall or cloud deployment identity. Consequently, there is no VM public IP whose `GET /health` endpoint can be verified. The required VM deployment documentation points (provider and reason, VM setup, Docker installation/image pull, container status, and logs) cannot be truthfully completed until a provider is selected and the VM is deployed.
+
+For that VM, the required network policy is public TCP port 80 and TCP port 22 restricted to the operator's confirmed public IP `/32`. The provider firewall and least-privilege identity remain to be configured. Provider-neutral preparation is documented in [`deploy/VM-OPERATIONS.md`](./deploy/VM-OPERATIONS.md); those files do not provision or verify infrastructure.
+
+## 9. Security
 
 - Do not commit `.env` files or credentials.
 - Do not commit private keys or registry tokens.
