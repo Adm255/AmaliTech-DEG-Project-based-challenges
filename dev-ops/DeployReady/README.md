@@ -1,4 +1,4 @@
-# DeployReady — DevOps Challenge
+# DeployReady: DevOps Challenge
 
 ## Project Overview
 
@@ -6,43 +6,42 @@ DeployReady is a containerized Node.js API built for the AmaliTech DEG DevOps ch
 
 The project demonstrates Docker containerization, automated testing, container image publishing, cloud deployment, and basic observability.
 
-**Application:** Kora Analytics API
-**Cloud platform:** Render
-**Container registry:** GitHub Container Registry (GHCR)
-**CI/CD:** GitHub Actions
+- **Application:** Kora Analytics API
+- **Cloud platform:** Render
+- **Container registry:** GitHub Container Registry (GHCR)
+- **CI/CD:** GitHub Actions
 
 ## Architecture
 
 ```text
 Developer
-   |
-   v
+    |
+    v
 GitHub Repository (main)
-   |
-   v
+    |
+    v
 GitHub Actions
-   |
-   +--> Run application tests
-   |
-   +--> Build Docker image
-   |
-   +--> Publish image to GHCR
-              |
-              v
-       Render Web Service
-              |
-              v
-       DeployReady Node.js API
-              |
-              +--> /health
-              +--> /metrics
-              +--> /data
+    |
+    v
+  Test
+    |
+    v
+Docker Build/Push (GHCR)
+    |
+    v
+Render Deploy (main, after Docker succeeds)
+    |
+    v
+  Live API
+  |-- GET /health
+  |-- GET /metrics
+  `-- POST /data
 ```
 
 ## Application Endpoints
 
 | Method | Endpoint | Description |
-|---|---|---|
+| --- | --- | --- |
 | GET | `/health` | Returns application health status |
 | GET | `/metrics` | Returns uptime and memory usage |
 | POST | `/data` | Accepts and echoes JSON data |
@@ -82,7 +81,7 @@ docker compose up --build
 
 The application will be available at:
 
-http://localhost:3000
+[http://localhost:3000](http://localhost:3000)
 
 ### Verify the Application
 
@@ -107,9 +106,7 @@ curl http://localhost:3000/metrics
 Test the data endpoint:
 
 ```bash
-curl -X POST http://localhost:3000/data \
-  -H "Content-Type: application/json" \
-  -d '{"message":"DeployReady test"}'
+curl -X POST -H 'Content-Type: application/json' --data '{"message":"DeployReady test"}' http://localhost:3000/data
 ```
 
 Stop the application:
@@ -139,7 +136,7 @@ The GitHub Actions workflow is located at:
 
 `.github/workflows/deploy.yml`
 
-The pipeline runs on pushes to the `main` branch.
+The test job runs for pushes and pull requests targeting `main`. On pushes to `main`, the workflow also builds and publishes the image, then deploys it to Render after the Docker job succeeds.
 
 ### Pipeline stages
 
@@ -149,6 +146,7 @@ The pipeline runs on pushes to the `main` branch.
 4. Build the Docker image.
 5. Authenticate with GitHub Container Registry.
 6. Publish the image to GHCR.
+7. Trigger a Render deployment after the Docker job succeeds on pushes to `main`.
 
 ### Container Image
 
@@ -156,32 +154,28 @@ The pipeline runs on pushes to the `main` branch.
 ghcr.io/adm255/deployready-app:latest
 ```
 
-The workflow uses GitHub Actions secrets and the repository-provided GitHub token for registry authentication.
+The workflow uses the repository-provided GitHub token for registry authentication and the `RENDER_DEPLOY_HOOK_URL` GitHub Actions secret to trigger Render.
 
-**Current pipeline limitation:** The workflow tests and publishes the image but does not automatically deploy to Render, perform a post-deployment health check, or roll back a failed release.
+Render deployment runs automatically after a successful Docker image publish on pushes to `main`. **Post-deployment health verification and automatic rollback are not implemented.**
 
 ## Cloud Deployment
 
 The application is deployed as a Render Web Service using the container image published to GHCR.
 
-**Provider:** Render
-**Service:** deployready-app-latest
-**Region:** Ohio
-**Public URL:** https://deployready-app-latest.onrender.com
+- **Provider:** Render
+- **Service:** deployready-app-latest
+- **Region:** Ohio
+- **Public URL:** [https://deployready-app-latest.onrender.com](https://deployready-app-latest.onrender.com)
 
-### Health Verification
+### Deployment Verification
 
-The deployed health endpoint is:
+The following deployed endpoint checks have succeeded:
 
-https://deployready-app-latest.onrender.com/health
+- `GET` [https://deployready-app-latest.onrender.com/health](https://deployready-app-latest.onrender.com/health) returns `{"status":"ok"}`.
+- `GET` [https://deployready-app-latest.onrender.com/metrics](https://deployready-app-latest.onrender.com/metrics) returns uptime, memory usage, and the Node.js version.
+- `POST` [https://deployready-app-latest.onrender.com/data](https://deployready-app-latest.onrender.com/data) accepts JSON and echoes the submitted JSON.
 
-Expected response:
-
-```json
-{"status":"ok"}
-```
-
-The public health endpoint was verified successfully.
+These checks were performed successfully against the live Render service. They are manual verification results; the workflow does not run a post-deployment health check or automatically roll back a release.
 
 ### Deployment Decision
 
@@ -210,7 +204,7 @@ Logs can help identify:
 - Container restarts.
 - Deployment failures.
 
-### Health Monitoring
+### Health Endpoint
 
 The `/health` endpoint provides a basic application health signal.
 
@@ -243,19 +237,19 @@ The project follows these security practices:
 
 ```text
 DeployReady/
-├── .github/
-│   └── workflows/
-│       └── deploy.yml
-├── app/
-│   ├── package.json
-│   └── application source
-├── .dockerignore
-├── .env.example
-├── .gitignore
-├── Dockerfile
-├── docker-compose.yml
-├── DEPLOYMENT.md
-└── README.md
+|-- .github/
+|   `-- workflows/
+|       `-- deploy.yml
+|-- app/
+|   |-- package.json
+|   `-- application source
+|-- .dockerignore
+|-- .env.example
+|-- .gitignore
+|-- Dockerfile
+|-- docker-compose.yml
+|-- DEPLOYMENT.md
+`-- README.md
 ```
 
 ## Remaining Challenge Requirements
@@ -263,20 +257,17 @@ DeployReady/
 The following original requirements remain incomplete:
 
 - Provision a cloud virtual machine.
-- Configure HTTP port 80 and restrict SSH port 22 to the user's IP.
+- Configure the VM firewall, including HTTP port 80 and SSH port 22 restricted to the user's IP.
 - Configure least-privilege cloud IAM for deployment.
-- Implement automatic deployment from GitHub Actions.
-- Verify application health after deployment.
+- Implement post-deployment health verification in the CI/CD workflow.
 - Implement automatic rollback to the previous image when health verification fails.
 - Configure an automated monitoring alert.
 
-These requirements are documented as outstanding rather than represented as completed.
+Render provides a managed container service, not the challenge's VM, SSH restriction, firewall, or cloud IAM setup. These items remain incomplete. Post-deployment health verification, automatic rollback, and monitoring alerts also remain incomplete.
 
 ## Submission
 
-Repository:
-
-https://github.com/Adm255/AmaliTech-DEG-Project-based-challenges
+Repository: [AmaliTech-DEG-Project-based-challenges](https://github.com/Adm255/AmaliTech-DEG-Project-based-challenges)
 
 The project demonstrates containerization, automated testing, image publishing, and a working public cloud deployment.
 
