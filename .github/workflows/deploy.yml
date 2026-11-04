@@ -83,9 +83,11 @@ jobs:
     steps:
       - name: Trigger Render deployment
         env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
-          curl --fail-with-body --silent --show-error \
-            --get \
-            --data-urlencode "imgURL=ghcr.io/adm255/deployready-app:latest" \
-            "$RENDER_DEPLOY_HOOK_URL"
+          if [ -z "$deploy_url" ]; then
+            echo "::error::RENDER_DEPLOY_HOOK_URL secret is missing or empty."
+            exit 1
+          fi
+
+          curl "$deploy_url"
