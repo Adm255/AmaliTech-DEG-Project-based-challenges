@@ -74,7 +74,7 @@ export VM_TEST_OLD_BACKEND=$old_backend
 
 expect_rejected() {
   local output_file="$tmp_dir/rejected.txt"
-  if "$release_script" "$@" > "$output_file" 2>&1; then
+  if bash "$release_script" "$@" > "$output_file" 2>&1; then
     echo "Expected invalid deployment arguments to be rejected: $*" >&2
     exit 1
   fi
@@ -93,7 +93,7 @@ fi
 
 upstream_file="$fixture/deploy/nginx/active-upstream.conf"
 printf 'set $backend %s:3000;\n' "$old_backend" > "$upstream_file"
-VM_TEST_HTTP_STATUS=200 "$release_script" "$image_base:$sha" > "$tmp_dir/success.txt"
+VM_TEST_HTTP_STATUS=200 bash "$release_script" "$image_base:$sha" > "$tmp_dir/success.txt"
 grep -Fq 'Deployment healthy:' "$tmp_dir/success.txt"
 if ! grep -Fq 'deployready-candidate-' "$upstream_file"; then
   echo "Successful deployment did not update the active backend:" >&2
@@ -110,7 +110,7 @@ fi
 
 : > "$VM_TEST_DOCKER_LOG"
 printf 'set $backend %s:3000;\n' "$old_backend" > "$upstream_file"
-if VM_TEST_HTTP_STATUS=503 "$release_script" "$image_base:$sha" > "$tmp_dir/failure.txt" 2>&1; then
+if VM_TEST_HTTP_STATUS=503 bash "$release_script" "$image_base:$sha" > "$tmp_dir/failure.txt" 2>&1; then
   echo "Expected failed post-switch health verification to fail the deployment." >&2
   exit 1
 fi
@@ -121,7 +121,7 @@ grep -Fq 'docker rm -f deployready-candidate-' "$VM_TEST_DOCKER_LOG"
 : > "$VM_TEST_DOCKER_LOG"
 printf 'set $backend deployready-unconfigured:3000;\n' > "$upstream_file"
 if VM_TEST_PREVIOUS_STATUS=missing VM_TEST_HTTP_STATUS=503 \
-  "$release_script" "$image_base:$sha" > "$tmp_dir/first-release-failure.txt" 2>&1; then
+  bash "$release_script" "$image_base:$sha" > "$tmp_dir/first-release-failure.txt" 2>&1; then
   echo "Expected failed first deployment health verification to fail." >&2
   exit 1
 fi
