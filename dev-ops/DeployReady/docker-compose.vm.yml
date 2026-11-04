@@ -1,6 +1,6 @@
 services:
   app:
-    image: ${DEPLOY_IMAGE:?Set DEPLOY_IMAGE to an immutable GHCR image reference}
+    image: ${DEPLOY_IMAGE:?Set DEPLOY_IMAGE to this project's GHCR image tagged with a full commit SHA}
     environment:
       PORT: 3000
     expose:

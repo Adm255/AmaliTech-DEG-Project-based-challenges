@@ -142,7 +142,7 @@ The test job runs for pushes and pull requests targeting `main`. On pushes to `m
 
 1. Checkout the repository.
 2. Install Node.js dependencies.
-3. Run application tests.
+3. Run application tests and focused VM release-script checks.
 4. Build the Docker image.
 5. Authenticate with GitHub Container Registry.
 6. Publish the image to GHCR.
@@ -153,9 +153,16 @@ The test job runs for pushes and pull requests targeting `main`. On pushes to `m
 
 ```text
 ghcr.io/adm255/deployready-app:latest
+ghcr.io/adm255/deployready-app:<full-commit-sha>
 ```
 
-The workflow uses the repository-provided GitHub token for registry authentication and the `RENDER_DEPLOY_HOOK_URL` GitHub Actions secret to trigger Render.
+The workflow publishes `latest` for Render and a full commit-SHA tag for immutable VM releases. It uses the repository-provided GitHub token for registry authentication and the `RENDER_DEPLOY_HOOK_URL` GitHub Actions secret to trigger Render.
+
+### Verification status
+
+- **Implemented and tested:** The existing GitHub Actions run #8 passed application tests, Docker build/push, Render deployment, and its health probe. The live Render health, metrics, and data endpoints have also been checked successfully.
+- **Implemented, locally checked with mocks only:** The workflow is configured to publish both image tags, and the VM release script validates the full SHA image reference, checks candidate health, switches the Nginx backend, restores a previously healthy backend after post-switch failure, and resets the route safely if a first deployment fails. Its focused test uses mocked Docker and HTTP commands; no real VM, Docker runtime, or VM rollback has been tested.
+- **Not implemented or verified:** The current SHA-tag workflow changes have not yet passed a GitHub Actions run. The workflow does not invoke the VM release script. VM provisioning, firewall rules, SSH source restriction, cloud IAM, continuous monitoring, and alerting remain incomplete. Render's health probe does not establish that the new release is serving and has no automatic rollback.
 
 Render deployment runs automatically after a successful Docker image publish on pushes to `main`. The workflow triggers the Render deploy hook and then retries the public health endpoint, requiring HTTP 200 and JSON status `ok`. The deploy hook does not wait for Render to finish deploying, so this probe can reach the previous healthy release; it does not prove that the new image is serving. Automatic rollback is not implemented.
 
@@ -251,6 +258,8 @@ DeployReady/
 |-- deploy/
 |   |-- VM-OPERATIONS.md
 |   |-- deploy-release.sh
+|   |-- tests/
+|   |   `-- test-deploy-release.sh
 |   `-- nginx/
 |       |-- active-upstream.conf
 |       `-- nginx.conf
@@ -266,10 +275,9 @@ The following original requirements remain incomplete:
 - Configure the VM firewall, including HTTP port 80 and SSH port 22 restricted to the user's IP.
 - Configure least-privilege cloud IAM for deployment.
 - Verify that post-deployment health checks reach the newly deployed image after rollout completes.
-- Implement automatic rollback to the previous image when health verification fails.
 - Configure continuous monitoring and an automated alert for health failures or rising HTTP 5xx errors.
 
-Render provides a managed container service, not the challenge's VM, SSH restriction, firewall, or cloud IAM setup. The workflow checks Render health after calling the deploy hook, but it does not confirm that rollout completed or roll back a failed release. Continuous monitoring and alerting are also not configured.
+The VM release script includes rollback to a previously healthy container after a post-switch health failure, but that behavior has only been exercised with mocked commands. It is not connected to the workflow or verified on a VM. Render provides a managed container service, not the challenge's VM, SSH restriction, firewall, or cloud IAM setup. The workflow checks Render health after calling the deploy hook, but it does not confirm that rollout completed or roll back a failed Render release. Continuous monitoring and alerting are also not configured.
 
 ## Submission
 

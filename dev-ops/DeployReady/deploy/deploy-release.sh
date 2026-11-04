@@ -9,8 +9,8 @@ usage() {
 [[ $# -eq 1 ]] || usage
 image_ref=$1
 
-if [[ ! $image_ref =~ ^[^[:space:]]+:[0-9a-fA-F]{40}$ ]]; then
-  echo "Deployment requires an image tag containing a 40-character Git commit SHA." >&2
+if [[ ! $image_ref =~ ^ghcr\.io/adm255/deployready-app:[0-9a-f]{40}$ ]]; then
+  echo "Deployment requires ghcr.io/adm255/deployready-app tagged with a full 40-character lowercase commit SHA." >&2
   exit 2
 fi
 
@@ -62,17 +62,30 @@ reload_proxy() {
 
 rollback() {
   local reason=$1
+  local backend_restored=false
   echo "Deployment verification failed: $reason" >&2
   if [[ $previous_available == true ]]; then
     echo "Restoring previous healthy release: $previous_container" >&2
     write_backend "$previous_container"
-    if ! reload_proxy; then
+    if reload_proxy; then
+      backend_restored=true
+    else
       echo "ERROR: could not reload the reverse proxy with the previous release." >&2
     fi
   else
-    echo "No previous healthy release was available to restore." >&2
+    echo "No previous healthy release was available; routing to the unconfigured backend." >&2
+    write_backend deployready-unconfigured
+    if reload_proxy; then
+      backend_restored=true
+    else
+      echo "ERROR: could not reload the reverse proxy with the unconfigured backend." >&2
+    fi
   fi
-  docker rm -f "$candidate" >/dev/null 2>&1 || true
+  if [[ $backend_restored == true ]]; then
+    docker rm -f "$candidate" >/dev/null 2>&1 || true
+  else
+    echo "Keeping candidate $candidate running because the proxy route could not be safely restored." >&2
+  fi
   exit 1
 }
 

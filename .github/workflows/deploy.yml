@@ -43,6 +43,10 @@ jobs:
       - name: Run tests
         run: npm test
 
+      # Check VM release input validation and rollback behavior with mocked Docker and HTTP commands.
+      - name: Run VM release-script tests
+        run: bash ../deploy/tests/test-deploy-release.sh
+
   docker:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
@@ -65,14 +69,19 @@ jobs:
       # Build the application Docker image.
       - name: Build Docker image
         run: |
+          image=ghcr.io/adm255/deployready-app
           docker build \
-            -t ghcr.io/adm255/deployready-app:latest \
+            -t "$image:latest" \
+            -t "$image:$GITHUB_SHA" \
             -f dev-ops/DeployReady/Dockerfile \
             dev-ops/DeployReady
 
-      # Publish the image to GitHub Container Registry.
-      - name: Push Docker image
-        run: docker push ghcr.io/adm255/deployready-app:latest
+      # Publish latest for Render and the immutable commit-SHA tag for VM releases.
+      - name: Push Docker image tags
+        run: |
+          image=ghcr.io/adm255/deployready-app
+          docker push "$image:latest"
+          docker push "$image:$GITHUB_SHA"
 
   deploy:
     name: Deploy to Render

@@ -51,6 +51,8 @@ Stop the application with `Ctrl+C`.
 
 The application image is published to GHCR.
 
+The workflow publishes both `ghcr.io/adm255/deployready-app:latest` (used by Render) and `ghcr.io/adm255/deployready-app:<full-commit-sha>` (reserved for immutable VM releases). The VM release script requires the full SHA tag matching the commit that triggered the workflow.
+
 Pull the image:
 
 ```bash
@@ -84,7 +86,7 @@ The workflow:
 1. Checks out the repository.
 2. Sets up Node.js 20.
 3. Installs dependencies.
-4. Runs the application tests.
+4. Runs the application tests and focused VM release-script checks.
 5. Builds the Docker image.
 6. Publishes the image to GitHub Container Registry.
 7. Triggers the Render deploy hook after a successful image publish.
@@ -92,7 +94,15 @@ The workflow:
 
 The workflow uses GitHub Actions permissions and the built-in `GITHUB_TOKEN` to publish the image.
 
+It tags the image as both `ghcr.io/adm255/deployready-app:latest` for Render and `ghcr.io/adm255/deployready-app:<full-commit-sha>` for an eventual VM release. The SHA tag is immutable and is the only image reference accepted by `deploy/deploy-release.sh`.
+
 The workflow triggers Render using its deploy hook after publishing the GHCR image. It then probes the public health endpoint. The hook request only triggers deployment; the workflow does not wait for Render to finish or verify which image is serving, so the probe may reach the previous healthy release. The workflow does not roll back a failed deployment.
+
+### Verification status
+
+- **Implemented and tested:** GitHub Actions run #8 passed the then-current application test, image build/push, Render deployment, and health probe. The live Render API endpoints were checked successfully.
+- **Implemented, mocked only:** Current local changes add full-SHA image publishing and a VM release script with candidate health checks and restoration of the previous healthy backend. The focused script test mocks Docker and HTTP; no VM, real Docker deployment, or rollback has been verified. The current workflow changes still need a successful GitHub Actions run.
+- **Not implemented:** The GitHub Actions workflow does not invoke the VM script. No VM, firewall, SSH restriction, or cloud IAM has been provisioned/configured. Continuous monitoring and alerts are not configured. Render rollout identity verification and rollback are not implemented.
 
 ## 5. Cloud Deployment
 
