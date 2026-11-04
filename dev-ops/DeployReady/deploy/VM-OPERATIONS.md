@@ -32,7 +32,7 @@ The script requires a Linux VM with Docker and Compose and has not been exercise
 Run it on the VM after authenticating Docker to GHCR:
 
 ```bash
-./deploy/deploy-release.sh "ghcr.io/adm255/deployready-app:${GIT_COMMIT_SHA}"
+bash ./deploy/deploy-release.sh "ghcr.io/adm255/deployready-app:${GIT_COMMIT_SHA}"
 ```
 
 Set `GIT_COMMIT_SHA` to the full commit SHA from the workflow run that published the image. The script retains the active and last-known-good containers but does not yet prune older release containers; add and test a retention policy before repeated long-term deployments. The workflow does not yet invoke this VM script.
