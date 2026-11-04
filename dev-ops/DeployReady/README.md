@@ -1,151 +1,283 @@
-# DeployReady
+# DeployReady — DevOps Challenge
 
-This challenge is designed for associate-level DevOps candidates. It is intentionally harder than an entry-level deployment exercise and tests your ability to handle containerisation, automated pipelines, cloud deployment, and safe release practices end to end.
+## Project Overview
 
----
+DeployReady is a containerized Node.js API built for the AmaliTech DEG DevOps challenge.
 
-## 1. Business Context
+The project demonstrates Docker containerization, automated testing, container image publishing, cloud deployment, and basic observability.
 
-**Client:** Kora Analytics
-**Industry:** SaaS - Data dashboards for logistics companies
+**Application:** Kora Analytics API
+**Cloud platform:** Render
+**Container registry:** GitHub Container Registry (GHCR)
+**CI/CD:** GitHub Actions
 
-### The Problem
+## Architecture
 
-Every time the Kora team wants to deploy a new version of their app, a developer manually SSHs into the server, pulls the code, and restarts the process by hand. There are no automated tests before a release and no way to tell if a deploy broke something until a customer complains.
-
-### Your Role
-
-You are joining as their first DevOps engineer. The application code already works, and your job is to **containerise it, automate the delivery pipeline, and get it running on a cloud platform** (AWS, GCP, Azure, or any other cloud provider you are familiar with).
-
----
-
-## 2. The Application
-
-A simple Node.js API is provided in the [`app/`](./app/) directory. It has three endpoints:
-
-| Method | Route      | Description                            |
-| ------ | ---------- | -------------------------------------- |
-| GET    | `/health`  | Returns `{ "status": "ok" }`           |
-| GET    | `/metrics` | Returns uptime and memory usage        |
-| POST   | `/data`    | Accepts a JSON body and echoes it back |
-
-Run it locally:
-
-```bash
-cd app
-npm install
-npm start
+```text
+Developer
+   |
+   v
+GitHub Repository (main)
+   |
+   v
+GitHub Actions
+   |
+   +--> Run application tests
+   |
+   +--> Build Docker image
+   |
+   +--> Publish image to GHCR
+              |
+              v
+       Render Web Service
+              |
+              v
+       DeployReady Node.js API
+              |
+              +--> /health
+              +--> /metrics
+              +--> /data
 ```
 
-Do not change the application logic. Your work is everything around it.
+## Application Endpoints
 
----
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/health` | Returns application health status |
+| GET | `/metrics` | Returns uptime and memory usage |
+| POST | `/data` | Accepts and echoes JSON data |
 
-## 3. The Assignment
+## Technology Stack
 
-### Part 1 - Containerise the App
+- Node.js
+- Docker
+- Docker Compose
+- GitHub Actions
+- GitHub Container Registry
+- Render
 
-**Deliverables:** A `Dockerfile` and a `docker-compose.yml` in the root of your repository.
+## Local Setup
 
-**Dockerfile requirements:**
+### Prerequisites
 
-- The app must run inside a Docker container.
-- The container must accept a `PORT` environment variable.
-- The container must **not** run as the `root` user.
+- Git
+- Docker
+- Docker Compose
 
-**Docker Compose requirements:**
+### Configure Environment
 
-- Define the app as a service in `docker-compose.yml`.
-- Map port `3000` on the host to the container.
-- Pass the `PORT` variable via an `.env` file (include a `.env.example` with placeholder values).
-- Running the following must start a working API:
-  ```bash
-  docker compose up --build
-  ```
+Create a local environment file:
 
----
+```bash
+cp .env.example .env
+```
 
-### Part 2 - Automate the Pipeline
+The default application port is `3000`.
 
-**Deliverable:** A `.github/workflows/deploy.yml` GitHub Actions workflow.
+### Build and Run
 
-The pipeline should test, build, push, deploy, and then verify the release with a health check on every push to `main`. If the health check fails, roll back to the previous image and fail the workflow.
+```bash
+docker compose up --build
+```
 
-Additional requirements:
+The application will be available at:
 
-- Secrets (SSH key, registry token) must be stored as **GitHub repository secrets**, never in the code.
-- Add a short comment above each step in the YAML explaining what it does.
+http://localhost:3000
 
----
+### Verify the Application
 
-## 4. Monitoring and Observability
+Check the health endpoint:
 
-**Deliverable:** A short `OBSERVABILITY.md` or a clearly documented section in `DEPLOYMENT.md`.
+```bash
+curl http://localhost:3000/health
+```
 
-Add a simple monitoring and observability setup for the deployed app so it is easy to tell when the service is unhealthy or behaving badly.
+Expected response:
 
-Requirements:
+```json
+{"status":"ok"}
+```
 
-- Capture application logs in a way that makes them easy to review later.
-- Add at least one health check, alert, or monitoring signal for the deployed service.
-- Document how you would spot a failed deployment, a crash, or rising error rates.
+Check metrics:
 
----
+```bash
+curl http://localhost:3000/metrics
+```
 
-### Part 3 - Deploy to the Cloud
+Test the data endpoint:
 
-**Deliverable:** A running service on a cloud platform and a short `DEPLOYMENT.md` explaining your setup.
+```bash
+curl -X POST http://localhost:3000/data \
+  -H "Content-Type: application/json" \
+  -d '{"message":"DeployReady test"}'
+```
 
-Use **AWS, GCP, Azure, or any other cloud provider you are familiar with**. Provision the following (via the cloud console is fine):
+Stop the application:
 
-- A **virtual machine** (e.g. AWS EC2 `t2.micro`, GCP `e2-micro`, Azure B1s) with Docker installed.
-- A **firewall / security group** that allows:
-  - HTTP on port 80 from anywhere
-  - SSH on port 22 **from your IP only**, not open to the world
-- A **service account / IAM user or role** for the pipeline with only the permissions it needs.
+```bash
+docker compose down
+```
 
-At submission time, `GET http://<your-server-ip>/health` must return `{ "status": "ok" }`.
+## Docker Implementation
 
-Document in `DEPLOYMENT.md`:
+The application is packaged using a Dockerfile.
 
-- Which cloud provider and service you used, and why
-- How you set up the virtual machine
-- How you installed Docker and pulled your image
-- How to check if the container is running
-- How to view the application logs
+The container:
 
----
+- Uses Node.js 20 Alpine.
+- Installs production dependencies.
+- Accepts the `PORT` environment variable.
+- Runs as the non-root `node` user.
+- Exposes port `3000`.
+- Includes a Docker health check.
 
-## 5. Bonus (Optional)
+Docker Compose builds the application and maps the host port to the container port.
 
-Pick **one** of the following if you want to go further:
+## CI/CD Pipeline
 
-- **Use Terraform** (or your cloud's IaC tool) to provision the VM and firewall rules instead of the console.
-- **Add a cloud monitoring alarm** (e.g. AWS CloudWatch, GCP Cloud Monitoring, Azure Monitor) that triggers if `/health` stops responding.
-- **Implement a rollback step** in the pipeline that re-deploys the previous image if the health check fails after deploy.
+The GitHub Actions workflow is located at:
 
-Describe what you added and why in your `DEPLOYMENT.md`.
+`.github/workflows/deploy.yml`
 
----
+The pipeline runs on pushes to the `main` branch.
 
-## 6. Submission Instructions
+### Pipeline stages
 
-1. **Fork** this repository.
-2. Complete all three parts in your fork.
-3. **Replace this README** with your own documentation (architecture overview, setup steps, decisions made).
-4. Submit your repo link via the [online form](https://forms.cloud.microsoft/e/f3FF83LVz3).
+1. Checkout the repository.
+2. Install Node.js dependencies.
+3. Run application tests.
+4. Build the Docker image.
+5. Authenticate with GitHub Container Registry.
+6. Publish the image to GHCR.
 
----
+### Container Image
 
-## ⚠️ Pre-Submission Checklist
+```text
+ghcr.io/adm255/deployready-app:latest
+```
 
-- [ ] `docker compose up --build` starts the app locally
-- [ ] A `.env.example` file is committed (the real `.env` is not)
-- [ ] At least one successful pipeline run is visible in the GitHub Actions tab
-- [ ] `GET /health` on your cloud server's public IP returns 200
-- [ ] No secrets or `.pem` files committed to the repository
-- [ ] SSH port 22 is **not** open to the world (`0.0.0.0/0`)
-- [ ] `DEPLOYMENT.md` is present and covers the four points in Part 3
-- [ ] `OBSERVABILITY.md` or the observability section in `DEPLOYMENT.md` explains monitoring and logging
-- [ ] This README has been replaced with your own documentation
-- [ ] Commit history shows progress over time (not a single upload commit)
+The workflow uses GitHub Actions secrets and the repository-provided GitHub token for registry authentication.
+
+**Current pipeline limitation:** The workflow tests and publishes the image but does not automatically deploy to Render, perform a post-deployment health check, or roll back a failed release.
+
+## Cloud Deployment
+
+The application is deployed as a Render Web Service using the container image published to GHCR.
+
+**Provider:** Render
+**Service:** deployready-app-latest
+**Region:** Ohio
+**Public URL:** https://deployready-app-latest.onrender.com
+
+### Health Verification
+
+The deployed health endpoint is:
+
+https://deployready-app-latest.onrender.com/health
+
+Expected response:
+
+```json
+{"status":"ok"}
+```
+
+The public health endpoint was verified successfully.
+
+### Deployment Decision
+
+Render was selected because the Google Cloud billing account was unavailable for provisioning a virtual machine.
+
+Render provides a managed container deployment without requiring manual VM administration.
+
+However, this deployment does not fulfill the original challenge's virtual machine, SSH restriction, firewall configuration, or least-privilege cloud IAM requirements.
+
+The free service may spin down when idle.
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for deployment details.
+
+## Observability
+
+The application provides a health endpoint and a metrics endpoint.
+
+### Application Logs
+
+Review application logs through the Render service dashboard.
+
+Logs can help identify:
+
+- Application startup failures.
+- Runtime errors.
+- Container restarts.
+- Deployment failures.
+
+### Health Monitoring
+
+The `/health` endpoint provides a basic application health signal.
+
+Check the endpoint to verify that the service responds successfully.
+
+### Metrics
+
+The `/metrics` endpoint provides application uptime and memory usage.
+
+These signals can help identify abnormal memory usage or unexpected application behavior.
+
+### Current Limitation
+
+The project currently documents basic health and logging practices.
+
+Automated external alerting and a dedicated monitoring alarm have not been configured.
+
+## Security
+
+The project follows these security practices:
+
+- The Docker container runs as a non-root user.
+- Environment configuration is separated from application source.
+- `.env.example` contains the expected configuration.
+- Real environment secrets are not intended to be committed.
+- GitHub Actions uses repository secrets for registry authentication.
+- The deployment guide documents the current platform limitations.
+
+## Project Structure
+
+```text
+DeployReady/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml
+├── app/
+│   ├── package.json
+│   └── application source
+├── .dockerignore
+├── .env.example
+├── .gitignore
+├── Dockerfile
+├── docker-compose.yml
+├── DEPLOYMENT.md
+└── README.md
+```
+
+## Remaining Challenge Requirements
+
+The following original requirements remain incomplete:
+
+- Provision a cloud virtual machine.
+- Configure HTTP port 80 and restrict SSH port 22 to the user's IP.
+- Configure least-privilege cloud IAM for deployment.
+- Implement automatic deployment from GitHub Actions.
+- Verify application health after deployment.
+- Implement automatic rollback to the previous image when health verification fails.
+- Configure an automated monitoring alert.
+
+These requirements are documented as outstanding rather than represented as completed.
+
+## Submission
+
+Repository:
+
+https://github.com/Adm255/AmaliTech-DEG-Project-based-challenges
+
+The project demonstrates containerization, automated testing, image publishing, and a working public cloud deployment.
+
+Further deployment details are available in [DEPLOYMENT.md](./DEPLOYMENT.md).
