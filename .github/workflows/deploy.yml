@@ -90,4 +90,95 @@ jobs:
             exit 1
           fi
 
-          curl "$deploy_url"
+          echo "::add-mask::$deploy_url"
+
+          if http_status=$(curl --fail --silent --output /dev/null \
+            --write-out '%{http_code}' \
+            --max-time 30 \
+            "$deploy_url" 2>/dev/null); then
+            curl_status=0
+          else
+            curl_status=$?
+          fi
+
+          case "$http_status" in
+            2[0-9][0-9])
+              if [ "$curl_status" -eq 0 ]; then
+                echo "Render deploy-hook request accepted (HTTP $http_status)."
+              else
+                echo "::error::Render deploy-hook request failed (curl exit $curl_status, HTTP $http_status)."
+                exit 1
+              fi
+              ;;
+            *)
+              echo "::error::Render deploy-hook request failed (curl exit $curl_status, HTTP ${http_status:-000})."
+              exit 1
+              ;;
+          esac
+
+      - name: Verify deployed application health
+        shell: bash
+        run: |
+          health_url="https://deployready-app-latest.onrender.com/health"
+          max_attempts=30
+          attempt=1
+          response_file="$(mktemp)"
+          trap 'rm -f "$response_file"' EXIT
+
+          while [ "$attempt" -le "$max_attempts" ]; do
+            if http_status=$(curl --silent --show-error --max-time 10 \
+              --output "$response_file" \
+              --write-out '%{http_code}' \
+              "$health_url"); then
+              curl_status=0
+            else
+              curl_status=$?
+            fi
+
+            if [ "$curl_status" -eq 0 ] && [ "$http_status" = "200" ]; then
+              if python3 -c 'import json, sys; data = json.load(sys.stdin); sys.exit(0 if isinstance(data, dict) and data.get("status") == "ok" else 1)' \
+                < "$response_file" 2>/dev/null; then
+                echo "Health check passed: HTTP 200 with JSON status ok."
+                exit 0
+              fi
+
+              echo "Attempt $attempt/$max_attempts: HTTP 200, but the response did not contain the expected JSON status 'ok'."
+            else
+              echo "Attempt $attempt/$max_attempts: health request failed (curl exit $curl_status, HTTP ${http_status:-000})."
+            fi
+
+            if [ "$attempt" -lt "$max_attempts" ]; then
+              sleep 10
+            fi
+            attempt=$((attempt + 1))
+          done
+
+          echo "::error::Health check failed after $max_attempts attempts. Final HTTP status: ${http_status:-000}."
+          echo "Final response body (Render hook URLs and sensitive query values redacted; max 4 KB):"
+          if [ -s "$response_file" ]; then
+            python3 - "$response_file" <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          body = pathlib.Path(sys.argv[1]).read_text(errors="replace")
+          body = re.sub(
+              r"(?i)https?://api\.render\.com/deploy/[^\s\"'<>]+",
+              "[REDACTED RENDER DEPLOY-HOOK URL]",
+              body,
+          )
+          body = re.sub(
+              r"(?i)([?&][^=&#\s\"'<>]*(?:key|secret|token|password|authorization|credential|auth|signature|sig)[^=&#\s\"'<>]*=)[^&#\s\"'<>]+",
+              r"\1[REDACTED]",
+              body,
+          )
+          body_bytes = body.encode("utf-8", errors="replace")
+          truncation_marker = b"\n[response body truncated at 4 KB]\n"
+          if len(body_bytes) > 4096:
+              body_bytes = body_bytes[:4096 - len(truncation_marker)] + truncation_marker
+          sys.stdout.buffer.write(body_bytes)
+          PY
+          else
+            echo "<empty>"
+          fi
+          exit 1
